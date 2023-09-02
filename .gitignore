@@ -30,3 +30,9 @@
 *.exe
 *.out
 *.app
+
+# Temporary files and directories
+.idea/
+
+# Build-related files and directories
+cmake-build-debug/
