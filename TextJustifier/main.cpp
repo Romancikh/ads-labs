@@ -35,5 +35,9 @@ int main() {
         return 1;
     }
 
+    // Закрытие файлов
+    inputFile.close();
+    outputFile.close();
+
     return 0;
 }
