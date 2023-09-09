@@ -22,17 +22,69 @@
 
 #include <iostream>
 #include <fstream>
+#include <vector>
+#include <string>
+
+std::vector<std::pair<std::string, std::string>> parseArguments(int argc, char *argv[]) {
+    std::vector<std::pair<std::string, std::string>> arguments;
+
+    for (int i = 1; i < argc; ++i) {
+        std::string arg = argv[i];
+        size_t pos = arg.find('=');
+
+        if (pos != std::string::npos) {
+            std::string key = arg.substr(2, pos - 2); // Извлечение ключа
+            std::string value = arg.substr(pos + 1); // Извлечение значения
+            arguments.emplace_back(key, value);
+        }
+
+    }
+
+    return arguments;
+}
 
 int main(int argc, char *argv[]) {
-    std::ifstream inputFile("input.txt"); // Открытие файла для чтения
-    std::ofstream outputFile("output.txt"); // Открытие файла для записи
+    std::vector<std::pair<std::string, std::string>> arguments = parseArguments(argc, argv);
+
+    std::string inputPath = "input.txt";
+    std::string outputPath = "output.txt";
+
+    int width = 80;
+    int indent = 4;
+
+    // Обработка аргументов
+    for (const auto &arg: arguments) {
+        if (arg.first == "input-file") {
+            inputPath = arg.second;
+        }
+        if (arg.first == "output-file") {
+            outputPath = arg.second;
+        }
+        if (arg.first == "width") {
+            try {
+                width = std::stoi(arg.second);
+            } catch (const std::exception &error) {
+                std::cerr << "Не удалось получить значение ширины, взято значение по умолчанию: 80" << std::endl;
+            }
+        }
+        if (arg.first == "indent") {
+            try {
+                indent = std::stoi(arg.second);
+            } catch (const std::exception &error) {
+                std::cerr << "Не удалось получить значение отступа, взято значение по умолчанию: 4" << std::endl;
+            }
+        }
+    }
+
+    std::ifstream inputFile(inputPath); // Открытие файла для чтения
+    std::ofstream outputFile(outputPath); // Открытие файла для записи
 
     if (!inputFile.is_open()) {
-        std::cout << "Не удалось открыть файл для чтения." << std::endl;
+        std::cerr << "Не удалось открыть файл для чтения." << std::endl;
         return 1;
     }
     if (!outputFile.is_open()) {
-        std::cout << "Не удалось открыть файл для записи." << std::endl;
+        std::cerr << "Не удалось открыть файл для записи." << std::endl;
         return 1;
     }
 
