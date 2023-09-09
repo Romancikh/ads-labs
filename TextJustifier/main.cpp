@@ -117,6 +117,11 @@ int main(int argc, char *argv[]) {
         }
     }
 
+    if (indent >= width) {
+        std::cerr << "Отступ первой строки больше или равен ширине строки." << std::endl;
+        return 1;
+    }
+
     std::ifstream inputFile(inputPath); // Открытие файла для чтения
     std::ofstream outputFile(outputPath); // Открытие файла для записи
 
