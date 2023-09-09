@@ -27,6 +27,7 @@
 #include <codecvt>
 #include <locale>
 
+// Функция для получения аргументов командной строки
 std::vector<std::pair<std::string, std::string>> parseArguments(int argc, char *argv[]) {
     std::vector<std::pair<std::string, std::string>> arguments;
 
@@ -45,6 +46,7 @@ std::vector<std::pair<std::string, std::string>> parseArguments(int argc, char *
     return arguments;
 }
 
+// Функция для чтения слова из файла
 std::string readWord(std::ifstream &inputFile) {
     std::string word;
     char ch;
@@ -60,13 +62,26 @@ std::string readWord(std::ifstream &inputFile) {
     return word.empty() ? "" : word;
 }
 
+// Функция для получения длины строки UTF-8
 size_t getLength(std::string &utf8String) {
     std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
     std::wstring wideString = converter.from_bytes(utf8String); // Преобразование UTF-8 строки в wstring
     return wideString.length();
 }
 
+// Функция для получения количества пробелов
+int getSpacesAmount(int wordsAmount, int freeSpace) {
+    int spacesCount = freeSpace / wordsAmount;
+
+    if (freeSpace % wordsAmount != 0) {
+        spacesCount++;
+    }
+
+    return spacesCount;
+}
+
 int main(int argc, char *argv[]) {
+    // Получение аргументов командной строки
     std::vector<std::pair<std::string, std::string>> arguments = parseArguments(argc, argv);
 
     std::string inputPath = "input.txt";
