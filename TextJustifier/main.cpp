@@ -43,6 +43,17 @@ std::vector<std::pair<std::string, std::string>> parseArguments(int argc, char *
     return arguments;
 }
 
+std::string readWord(std::ifstream &inputFile) {
+    std::string word;
+    char ch = '*';
+
+    while (ch != ' ') {
+        inputFile.get(ch);
+        word += ch;
+    }
+
+    return word;
+}
 int main(int argc, char *argv[]) {
     std::vector<std::pair<std::string, std::string>> arguments = parseArguments(argc, argv);
 
