@@ -71,9 +71,12 @@ size_t getLength(std::string &utf8String) {
 
 // Функция для получения количества пробелов
 int getSpacesAmount(int wordsAmount, int freeSpace) {
-    int spacesCount = freeSpace / wordsAmount;
+    if (wordsAmount == 1) {
+        return 0;
+    }
+    int spacesCount = freeSpace / (wordsAmount - 1);
 
-    if (freeSpace % wordsAmount != 0) {
+    if (freeSpace % (wordsAmount - 1) != 0) {
         spacesCount++;
     }
 
