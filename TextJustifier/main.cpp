@@ -129,6 +129,38 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
+    /*
+     * TODO: 1. Добавить обработку последней строки
+     *       2. Добавить обработку длинных слов
+     */
+    
+    std::vector<std::string> words;
+    while (!inputFile.eof()) {
+        int currentLength = indent;
+        outputFile << std::string(indent, ' ');
+        indent = 0;
+        if (!words.empty()) {
+            currentLength = (int) getLength(words[0]) + 1;
+        }
+        while (currentLength < width) {
+            std::string word = readWord(inputFile);
+            words.push_back(word);
+            currentLength += (int) getLength(word) + 1;
+            if (word.empty()) {
+                break;
+            }
+        }
+        currentLength -= (int) getLength(words[words.size() - 1]) + (int) (words.size());
+        int freeSpace = width - currentLength;
+        while (words.size() > 1) {
+            int spacesAmount = getSpacesAmount((int) words.size() - 1, freeSpace);
+            outputFile << words[0] << std::string(spacesAmount, ' ');
+            freeSpace -= spacesAmount;
+            words.erase(words.begin());
+        }
+        outputFile << std::endl;
+    }
+
     // Закрытие файлов
     inputFile.close();
     outputFile.close();
