@@ -24,6 +24,8 @@
 #include <fstream>
 #include <vector>
 #include <string>
+#include <codecvt>
+#include <locale>
 
 std::vector<std::pair<std::string, std::string>> parseArguments(int argc, char *argv[]) {
     std::vector<std::pair<std::string, std::string>> arguments;
@@ -33,8 +35,8 @@ std::vector<std::pair<std::string, std::string>> parseArguments(int argc, char *
         size_t pos = arg.find('=');
 
         if (pos != std::string::npos) {
-            std::string key = arg.substr(2, pos - 2); // Извлечение ключа
-            std::string value = arg.substr(pos + 1); // Извлечение значения
+            std::string key = arg.substr(2, pos - 2); // Извлечение ключа аргумента
+            std::string value = arg.substr(pos + 1); // Извлечение значения аргумента
             arguments.emplace_back(key, value);
         }
 
@@ -45,15 +47,25 @@ std::vector<std::pair<std::string, std::string>> parseArguments(int argc, char *
 
 std::string readWord(std::ifstream &inputFile) {
     std::string word;
-    char ch = '*';
+    char ch;
 
-    while (ch != ' ') {
-        inputFile.get(ch);
-        word += ch;
+    while (inputFile.get(ch)) {
+        if (ch != ' ' && ch != '\n') {
+            word += ch;
+        } else if (!word.empty()) {
+            return word;
+        }
     }
 
-    return word;
+    return word.empty() ? "" : word;
 }
+
+size_t getLength(std::string &utf8String) {
+    std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+    std::wstring wideString = converter.from_bytes(utf8String); // Преобразование UTF-8 строки в wstring
+    return wideString.length();
+}
+
 int main(int argc, char *argv[]) {
     std::vector<std::pair<std::string, std::string>> arguments = parseArguments(argc, argv);
 
@@ -75,14 +87,14 @@ int main(int argc, char *argv[]) {
             try {
                 width = std::stoi(arg.second);
             } catch (const std::exception &error) {
-                std::cerr << "Не удалось получить значение ширины, взято значение по умолчанию: 80" << std::endl;
+                std::cerr << "Не удалось получить значение ширины, взято значение по умолчанию: 80." << std::endl;
             }
         }
         if (arg.first == "indent") {
             try {
                 indent = std::stoi(arg.second);
             } catch (const std::exception &error) {
-                std::cerr << "Не удалось получить значение отступа, взято значение по умолчанию: 4" << std::endl;
+                std::cerr << "Не удалось получить значение отступа, взято значение по умолчанию: 4." << std::endl;
             }
         }
     }
