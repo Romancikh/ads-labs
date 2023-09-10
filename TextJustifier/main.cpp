@@ -28,21 +28,17 @@
 #include <locale>
 
 // Функция для получения аргументов командной строки
-std::vector<std::pair<std::string, std::string>> parseArguments(int argc, char *argv[]) {
+std::vector<std::pair<std::string, std::string>> getCommandLineArguments(int argc, char *argv[]) {
     std::vector<std::pair<std::string, std::string>> arguments;
-
     for (int i = 1; i < argc; ++i) {
         std::string arg = argv[i];
-        size_t pos = arg.find('=');
-
+        std::size_t pos = arg.find('=');
         if (pos != std::string::npos) {
             std::string key = arg.substr(2, pos - 2); // Извлечение ключа аргумента
             std::string value = arg.substr(pos + 1); // Извлечение значения аргумента
             arguments.emplace_back(key, value);
         }
-
     }
-
     return arguments;
 }
 
@@ -50,7 +46,6 @@ std::vector<std::pair<std::string, std::string>> parseArguments(int argc, char *
 std::string readWord(std::ifstream &inputFile) {
     std::string word;
     char ch;
-
     while (inputFile.get(ch)) {
         if (ch != ' ' && ch != '\n') {
             word += ch;
@@ -58,79 +53,80 @@ std::string readWord(std::ifstream &inputFile) {
             return word;
         }
     }
-
     return word.empty() ? "" : word;
 }
 
 // Функция для получения длины строки UTF-8
-size_t getLength(std::string &utf8String) {
+std::size_t getLength(std::string &utf8String) {
     std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
     std::wstring wideString = converter.from_bytes(utf8String); // Преобразование UTF-8 строки в wstring
     return wideString.length();
 }
 
-// Функция для получения количества пробелов
+// Функция для получения количества пробелов между словами
 int getSpacesAmount(int wordsAmount, int freeSpace) {
     if (wordsAmount == 1) {
         return 0;
     }
     int spacesCount = freeSpace / (wordsAmount - 1);
-
     if (freeSpace % (wordsAmount - 1) != 0) {
         spacesCount++;
     }
-
     return spacesCount;
 }
 
 int main(int argc, char *argv[]) {
     // Получение аргументов командной строки
-    std::vector<std::pair<std::string, std::string>> arguments = parseArguments(argc, argv);
+    std::vector<std::pair<std::string, std::string>> arguments = getCommandLineArguments(argc, argv);
 
+    // Установка значений по умолчанию для пути к входному файлу, пути к выходному файлу, ширины строки и отступа абзаца
     std::string inputPath = "input.txt";
     std::string outputPath = "output.txt";
+    int lineWidth = 80;
+    int indentWidth = 4;
 
-    int width = 80;
-    int indent = 4;
-
-    // Обработка аргументов
-    for (const auto &arg: arguments) {
-        if (arg.first == "input-file") {
-            inputPath = arg.second;
-        }
-        if (arg.first == "output-file") {
-            outputPath = arg.second;
-        }
-        if (arg.first == "width") {
+    // Обработка аргументов командной строки
+    for (const auto &[key, value]: arguments) {
+        if (key == "input-file") {
+            inputPath = value;
+        } else if (key == "output-file") {
+            outputPath = value;
+        } else if (key == "line-width") {
             try {
-                width = std::stoi(arg.second);
+                lineWidth = std::stoi(value);
             } catch (const std::exception &error) {
-                std::cerr << "Не удалось получить значение ширины, взято значение по умолчанию: 80." << std::endl;
+                std::cerr << "Не удалось получить значение ширины строки, взято значение по умолчанию: 80."
+                          << std::endl;
             }
-        }
-        if (arg.first == "indent") {
+        } else if (key == "indent-width") {
             try {
-                indent = std::stoi(arg.second);
+                indentWidth = std::stoi(value);
             } catch (const std::exception &error) {
-                std::cerr << "Не удалось получить значение отступа, взято значение по умолчанию: 4." << std::endl;
+                std::cerr << "Не удалось получить значение ширины отступа, взято значение по умолчанию: 4."
+                          << std::endl;
             }
+        } else {
+            std::cerr << "Недопустимый аргумент командной строки: " << key << std::endl;
+            return 1;
         }
     }
 
-    if (indent >= width) {
-        std::cerr << "Отступ первой строки больше или равен ширине строки." << std::endl;
+    // Проверка наличия недопустимых входных данных
+    if (indentWidth >= lineWidth) {
+        std::cerr << "Ширина отступа больше или равна ширине строки." << std::endl;
         return 1;
     }
 
-    std::ifstream inputFile(inputPath); // Открытие файла для чтения
-    std::ofstream outputFile(outputPath); // Открытие файла для записи
-
+    // Открытие файлов для чтения и записи
+    std::ifstream inputFile(inputPath);
     if (!inputFile.is_open()) {
-        std::cerr << "Не удалось открыть файл для чтения." << std::endl;
+        std::cerr << "Не удалось открыть файл для чтения: " << inputPath << std::endl;
         return 1;
     }
+
+    std::ofstream outputFile(outputPath);
     if (!outputFile.is_open()) {
-        std::cerr << "Не удалось открыть файл для записи." << std::endl;
+        std::cerr << "Не удалось открыть файл для записи: " << outputPath << std::endl;
         return 1;
     }
 
@@ -138,28 +134,32 @@ int main(int argc, char *argv[]) {
      * TODO: 1. Добавить обработку последней строки
      *       2. Добавить обработку длинных слов
      */
-    
+
     std::vector<std::string> words;
     while (!inputFile.eof()) {
-        int currentLength = indent;
-        outputFile << std::string(indent, ' ');
-        indent = 0;
+        int currentLength = indentWidth;
+        outputFile << std::string(indentWidth, ' ');
+        indentWidth = 0;
         if (!words.empty()) {
-            currentLength = (int) getLength(words[0]) + 1;
+            currentLength = static_cast<int>(getLength(words.back())) + 1;
         }
-        while (currentLength < width) {
+        while (currentLength < lineWidth) {
             std::string word = readWord(inputFile);
+            if (getLength(word) > static_cast<std::size_t>(lineWidth)) {
+                std::cerr << "Слово больше чем ширина строки: " << word << std::endl;
+                return 1;
+            }
             words.push_back(word);
-            currentLength += (int) getLength(word) + 1;
+            currentLength += static_cast<int>(getLength(word)) + 1;
             if (word.empty()) {
                 break;
             }
         }
-        currentLength -= (int) getLength(words[words.size() - 1]) + (int) (words.size());
-        int freeSpace = width - currentLength;
+        currentLength -= static_cast<int>(getLength(words.back())) + static_cast<int>(words.size());
+        int freeSpace = lineWidth - currentLength;
         while (words.size() > 1) {
-            int spacesAmount = getSpacesAmount((int) words.size() - 1, freeSpace);
-            outputFile << words[0] << std::string(spacesAmount, ' ');
+            int spacesAmount = getSpacesAmount(static_cast<int>(words.size()) - 1, freeSpace);
+            outputFile << words.front() << std::string(spacesAmount, ' ');
             freeSpace -= spacesAmount;
             words.erase(words.begin());
         }
