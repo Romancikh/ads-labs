@@ -130,10 +130,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    /*
-     * TODO: 1. Добавить обработку длинных слов
-     */
-
+    // Обработка текста
     std::vector<std::string> words;
     bool isLastLine = false;
     while (!inputFile.eof()) {
@@ -162,6 +159,9 @@ int main(int argc, char *argv[]) {
             int spacesAmount = getSpacesAmount(static_cast<int>(words.size()) - 1, freeSpace);
             if (isLastLine) {
                 spacesAmount = 1;
+                if (words.size() == 2 && words.back().empty()) {
+                    spacesAmount = 0;
+                }
             }
             outputFile << words.front() << std::string(spacesAmount, ' ');
             freeSpace -= spacesAmount;
