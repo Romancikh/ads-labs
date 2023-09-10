@@ -131,11 +131,11 @@ int main(int argc, char *argv[]) {
     }
 
     /*
-     * TODO: 1. Добавить обработку последней строки
-     *       2. Добавить обработку длинных слов
+     * TODO: 1. Добавить обработку длинных слов
      */
 
     std::vector<std::string> words;
+    bool isLastLine = false;
     while (!inputFile.eof()) {
         int currentLength = indentWidth;
         outputFile << std::string(indentWidth, ' ');
@@ -143,7 +143,7 @@ int main(int argc, char *argv[]) {
         if (!words.empty()) {
             currentLength = static_cast<int>(getLength(words.back())) + 1;
         }
-        while (currentLength < lineWidth) {
+        while (currentLength - 1 <= lineWidth) {
             std::string word = readWord(inputFile);
             if (getLength(word) > static_cast<std::size_t>(lineWidth)) {
                 std::cerr << "Слово больше чем ширина строки: " << word << std::endl;
@@ -152,6 +152,7 @@ int main(int argc, char *argv[]) {
             words.push_back(word);
             currentLength += static_cast<int>(getLength(word)) + 1;
             if (word.empty()) {
+                isLastLine = true;
                 break;
             }
         }
@@ -159,6 +160,9 @@ int main(int argc, char *argv[]) {
         int freeSpace = lineWidth - currentLength;
         while (words.size() > 1) {
             int spacesAmount = getSpacesAmount(static_cast<int>(words.size()) - 1, freeSpace);
+            if (isLastLine) {
+                spacesAmount = 1;
+            }
             outputFile << words.front() << std::string(spacesAmount, ' ');
             freeSpace -= spacesAmount;
             words.erase(words.begin());
