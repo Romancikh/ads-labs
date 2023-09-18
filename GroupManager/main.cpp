@@ -7,10 +7,8 @@
 std::string trim(const std::string &str) {
     size_t first = str.find_first_not_of(" \t\n\r"); // Находим первый значащий символ
     size_t last = str.find_last_not_of(" \t\n\r"); // Находим последний значащий символ
-
     if (first == std::string::npos) // На случай, если строка содержит только пробелы
         return "";
-
     return str.substr(first, (last - first + 1));
 }
 
@@ -22,10 +20,10 @@ std::string readWord(std::ifstream &inputFile) {
         if (ch != '|' && ch != '\n') {
             word += ch;
         } else if (!word.empty()) {
-            return word;
+            return trim(word);
         }
     }
-    return word.empty() ? "" : word;
+    return word.empty() ? "" : trim(word);
 }
 
 int main(int argc, char *argv[]) {
