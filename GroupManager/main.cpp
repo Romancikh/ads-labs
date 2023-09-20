@@ -1,6 +1,5 @@
 #include <iostream>
 #include <string>
-#include <vector>
 #include <windows.h>
 #include <fstream>
 
@@ -25,15 +24,6 @@ std::string readWord(std::ifstream &inputFile) {
         }
     }
     return word.empty() ? "" : trim(word);
-}
-
-// Функция для получения элемента списка
-std::vector<std::string> readItem(std::ifstream &inputFile) {
-    std::string group = readWord(inputFile);
-    std::string faculty = readWord(inputFile);
-    std::string course = readWord(inputFile);
-    std::vector<std::string> item = {group, faculty, course};
-    return item;
 }
 
 struct Group {
