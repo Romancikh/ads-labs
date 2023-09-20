@@ -3,6 +3,23 @@
 #include <windows.h>
 #include <fstream>
 
+struct Group {
+    std::string value;
+    Group *next;
+};
+
+struct Course {
+    std::string value;
+    Course *next;
+    Group *headGroup;
+};
+
+struct Faculty {
+    std::string value;
+    Faculty *next;
+    Course *headCourse;
+};
+
 // Функция для удаления лидирующих и конечных символов
 std::string trim(const std::string &str) {
     size_t first = str.find_first_not_of(" \t\n\r"); // Находим первый значащий символ
@@ -26,22 +43,29 @@ std::string readWord(std::ifstream &inputFile) {
     return word.empty() ? "" : trim(word);
 }
 
-struct Group {
-    std::string value;
-    Group *next;
-};
+// Процедура добавления данных
+void push(Group *prev, std::string value) {
+    Group newGroup = {value, nullptr};
+    prev->next = &newGroup;
+}
 
-struct Course {
-    std::string value;
-    Course *next;
-    Group *group;
-};
+void push(Course *prev, std::string value, Group &headGroup) {
+    Course newCourse = {value, nullptr, &headGroup};
+    prev->next = &newCourse;
+}
 
-struct Faculty {
-    std::string value;
-    Faculty *next;
-    Course *course;
-};
+void push(Faculty *prev, std::string value, Course &headCourse) {
+    Faculty newFaculty = {value, nullptr, &headCourse};
+    prev->next = &newFaculty;
+}
+
+// Процедура для чтения данных из файла
+void readFile(std::ifstream &inputFile) {
+    Group headGroup = {readWord(inputFile), nullptr};
+    Faculty headFaculty = {readWord(inputFile), nullptr, nullptr};
+    Course headCourse = {readWord(inputFile), nullptr, &headGroup};
+    headFaculty.headCourse = &headCourse;
+}
 
 int main(int argc, char *argv[]) {
     SetConsoleCP(1251);
@@ -57,4 +81,6 @@ int main(int argc, char *argv[]) {
         std::cerr << "Не удалось открыть файл для чтения: " << inputPath << std::endl;
         return 1;
     }
+
+    readFile(inputFile);
 }
