@@ -36,6 +36,23 @@ std::vector<std::string> readItem(std::ifstream &inputFile) {
     return item;
 }
 
+struct Group {
+    std::string value;
+    Group *next;
+};
+
+struct Course {
+    std::string value;
+    Course *next;
+    Group *group;
+};
+
+struct Faculty {
+    std::string value;
+    Faculty *next;
+    Course *course;
+};
+
 int main(int argc, char *argv[]) {
     SetConsoleCP(1251);
     SetConsoleOutputCP(1251);
