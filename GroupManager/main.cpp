@@ -40,12 +40,10 @@ Group *getCourseHead(Group *head, const std::string &course) {
 }
 
 void insertGroup(Group *&head, const std::string &group, const std::string &faculty, const std::string &course) {
-    Group *facultyHead = getFacultyHead(head, faculty);
-    Group *courseHead = getCourseHead(head, course);
     auto *newGroup = new Group(group, faculty, course);
     newGroup->next = head;
-    newGroup->nextFaculty = facultyHead;
-    newGroup->nextCourse = courseHead;
+    newGroup->nextFaculty = getFacultyHead(head, faculty);
+    newGroup->nextCourse = getCourseHead(head, course);
     head = newGroup;
 }
 
@@ -73,14 +71,11 @@ std::string readWord(std::ifstream &inputFile) {
 }
 
 
-
 void printAllGroups(Group *head) {
     Group *current = head;
     while (current != nullptr) {
-        std::cout << "Группа: " << current->group
-                  << ", Факультет: " << current->faculty
-                  << ", Курс: " << current->course
-                  << std::endl;
+        std::cout << "Группа: " << current->group << ", Факультет: " << current->faculty << ", Курс: "
+                  << current->course << std::endl;
         current = current->next;
     }
 }
@@ -93,9 +88,7 @@ void printGroupsByFaculty(Group *head, const std::string &faculty) {
         return;
     }
     while (current != nullptr) {
-        std::cout << "Группа: " << current->group
-                  << ", Курс: " << current->course
-                  << std::endl;
+        std::cout << "Группа: " << current->group << ", Курс: " << current->course << std::endl;
         current = current->nextFaculty;
     }
 }
@@ -108,9 +101,7 @@ void printGroupsByCourse(Group *head, const std::string &course) {
         return;
     }
     while (current != nullptr) {
-        std::cout << "Группа: " << current->group
-                  << ", Факультет: " << current->faculty
-                  << std::endl;
+        std::cout << "Группа: " << current->group << ", Факультет: " << current->faculty << std::endl;
         current = current->nextCourse;
     }
 }
