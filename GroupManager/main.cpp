@@ -1,7 +1,7 @@
-#include <iostream>
 #include <string>
-#include <windows.h>
 #include <fstream>
+#include <iostream>
+#include <windows.h>
 
 struct Group {
     std::string value;
