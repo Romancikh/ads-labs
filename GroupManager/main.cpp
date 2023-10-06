@@ -10,11 +10,6 @@ struct Group {
     Group *next;
     Group *nextFaculty;
     Group *nextCourse;
-
-    Group(const std::string &group, const std::string &faculty, const std::string &course, Group *next = nullptr,
-          Group *nextFaculty = nullptr, Group *nextCourse = nullptr) : group(group), faculty(faculty), course(course),
-                                                                       next(next), nextFaculty(nextFaculty),
-                                                                       nextCourse(nextCourse) {}
 };
 
 Group *getFacultyHead(Group *head, const std::string &faculty) {
@@ -40,7 +35,10 @@ Group *getCourseHead(Group *head, const std::string &course) {
 }
 
 void insertGroup(Group *&head, const std::string &group, const std::string &faculty, const std::string &course) {
-    auto *newGroup = new Group(group, faculty, course);
+    auto *newGroup = new Group;
+    newGroup->group = group;
+    newGroup->faculty = faculty;
+    newGroup->course = course;
     newGroup->next = head;
     newGroup->nextFaculty = getFacultyHead(head, faculty);
     newGroup->nextCourse = getCourseHead(head, course);
