@@ -5,19 +5,11 @@
 
 struct Group {
     std::string value;
+    std::string faculty;
+    std::string course;
     Group *next;
-};
-
-struct Course {
-    std::string value;
-    Course *next;
-    Group *headGroup;
-};
-
-struct Faculty {
-    std::string value;
-    Faculty *next;
-    Course *headCourse;
+    Group *nextFaculty;
+    Group *nextCourse;
 };
 
 // Функция для удаления лидирующих и конечных символов
@@ -43,28 +35,9 @@ std::string readWord(std::ifstream &inputFile) {
     return word.empty() ? "" : trim(word);
 }
 
-// Процедура добавления данных
-void push(Group *prev, std::string value) {
-    Group newGroup = {value, nullptr};
-    prev->next = &newGroup;
-}
-
-void push(Course *prev, std::string value, Group &headGroup) {
-    Course newCourse = {value, nullptr, &headGroup};
-    prev->next = &newCourse;
-}
-
-void push(Faculty *prev, std::string value, Course &headCourse) {
-    Faculty newFaculty = {value, nullptr, &headCourse};
-    prev->next = &newFaculty;
-}
-
 // Процедура для чтения данных из файла
 void readFile(std::ifstream &inputFile) {
-    Group headGroup = {readWord(inputFile), nullptr};
-    Faculty headFaculty = {readWord(inputFile), nullptr, nullptr};
-    Course headCourse = {readWord(inputFile), nullptr, &headGroup};
-    headFaculty.headCourse = &headCourse;
+
 }
 
 int main(int argc, char *argv[]) {
