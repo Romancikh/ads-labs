@@ -17,6 +17,38 @@ struct Group {
                                                                        nextCourse(nextCourse) {}
 };
 
+Group *getFacultyHead(Group *head, const std::string &faculty) {
+    Group *current = head;
+    while (current != nullptr) {
+        if (current->faculty == faculty) {
+            return current;
+        }
+        current = current->next;
+    }
+    return current;
+}
+
+Group *getCourseHead(Group *head, const std::string &course) {
+    Group *current = head;
+    while (current != nullptr) {
+        if (current->course == course) {
+            return current;
+        }
+        current = current->next;
+    }
+    return current;
+}
+
+void insertGroup(Group *&head, const std::string &group, const std::string &faculty, const std::string &course) {
+    Group *facultyHead = getFacultyHead(head, faculty);
+    Group *courseHead = getCourseHead(head, course);
+    auto *newGroup = new Group(group, faculty, course);
+    newGroup->next = head;
+    newGroup->nextFaculty = facultyHead;
+    newGroup->nextCourse = courseHead;
+    head = newGroup;
+}
+
 // Функция для удаления лидирующих и конечных символов
 std::string trim(const std::string &str) {
     size_t first = str.find_first_not_of(" \t\n\r"); // Находим первый значащий символ
