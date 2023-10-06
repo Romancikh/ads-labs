@@ -3,48 +3,6 @@
 #include <iostream>
 #include <windows.h>
 
-struct Group {
-    std::string group;
-    std::string faculty;
-    std::string course;
-    Group *next;
-    Group *nextFaculty;
-    Group *nextCourse;
-};
-
-Group *getFacultyHead(Group *head, const std::string &faculty) {
-    Group *current = head;
-    while (current != nullptr) {
-        if (current->faculty == faculty) {
-            return current;
-        }
-        current = current->next;
-    }
-    return current;
-}
-
-Group *getCourseHead(Group *head, const std::string &course) {
-    Group *current = head;
-    while (current != nullptr) {
-        if (current->course == course) {
-            return current;
-        }
-        current = current->next;
-    }
-    return current;
-}
-
-void insertGroup(Group *&head, const std::string &group, const std::string &faculty, const std::string &course) {
-    auto *newGroup = new Group;
-    newGroup->group = group;
-    newGroup->faculty = faculty;
-    newGroup->course = course;
-    newGroup->next = head;
-    newGroup->nextFaculty = getFacultyHead(head, faculty);
-    newGroup->nextCourse = getCourseHead(head, course);
-    head = newGroup;
-}
-
 // Функция для удаления лидирующих и конечных символов
 std::string trim(const std::string &str) {
     size_t first = str.find_first_not_of(" \t\n\r"); // Находим первый значащий символ
@@ -68,44 +26,88 @@ std::string readWord(std::ifstream &inputFile) {
     return word.empty() ? "" : trim(word);
 }
 
+struct Group {
+    std::string value;
+    Group *next{};
+    Group *nextFaculty{};
+    Group *nextCourse{};
+};
 
-void printAllGroups(Group *head) {
-    Group *current = head;
+struct Faculty {
+    std::string value;
+    Faculty *next{};
+    Group *groupHead{};
+};
+
+void insertFaculty(Faculty *&facultyHead, const std::string &faculty) {
+    Faculty *current = facultyHead;
+
     while (current != nullptr) {
-        std::cout << "Группа: " << current->group << ", Факультет: " << current->faculty << ", Курс: "
-                  << current->course << std::endl;
+        if (current->value == faculty) {
+            return;
+        }
         current = current->next;
     }
-}
 
-void printGroupsByFaculty(Group *head, const std::string &faculty) {
-    std::cout << faculty << std::endl;
-    Group *current = getFacultyHead(head, faculty);
-    if (!current) {
-        std::cout << "Данные не найдены" << std::endl;
-        return;
-    }
+    auto *newFaculty = new Faculty;
+    newFaculty->value = faculty;
+    newFaculty->next = facultyHead;
+    facultyHead = newFaculty;
+};
+
+Faculty *getCurrentFacultyNode(Faculty *facultyHead, const std::string &faculty) {
+    Faculty *current = facultyHead;
     while (current != nullptr) {
-        std::cout << "Группа: " << current->group << ", Курс: " << current->course << std::endl;
-        current = current->nextFaculty;
+        if (current->value == faculty) {
+            return current;
+        }
+        current = current->next;
     }
+    return current;
 }
 
-void printGroupsByCourse(Group *head, const std::string &course) {
-    std::cout << course << std::endl;
-    Group *current = getCourseHead(head, course);
-    if (!current) {
-        std::cout << "Данные не найдены" << std::endl;
-        return;
-    }
+struct Course {
+    std::string value;
+    Course *next{};
+    Group *groupHead{};
+};
+
+void insertCourse(Course *&courseHead, const std::string &course) {
+    Course *current = courseHead;
+
     while (current != nullptr) {
-        std::cout << "Группа: " << current->group << ", Факультет: " << current->faculty << std::endl;
-        current = current->nextCourse;
+        if (current->value == course) {
+            return;
+        }
+        current = current->next;
     }
+
+    auto *newCourse = new Course;
+    newCourse->value = course;
+    newCourse->next = courseHead;
+    courseHead = newCourse;
+};
+
+Course *getCurrentCourseNode(Course *courseHead, const std::string &course) {
+    Course *current = courseHead;
+    while (current != nullptr) {
+        if (current->value == course) {
+            return current;
+        }
+        current = current->next;
+    }
+    return current;
 }
 
-// Процедура для чтения данных из файла
-void readFile(const std::string &inputPath, Group *&head) {
+void insertGroup(Group *&groupHead, const std::string &group) {
+    auto *newGroup = new Group;
+    newGroup->value = group;
+    newGroup->next = groupHead;
+    groupHead = newGroup;
+}
+
+// Процедура для чтения и сохранения данных из файла
+void readFile(const std::string &inputPath, Group *&groupHead, Faculty *&facultyHead, Course *&courseHead) {
     std::ifstream inputFile(inputPath);
     if (!inputFile.is_open()) {
         throw std::runtime_error("Не удалось открыть файл \"" + inputPath + "\" для чтения");
@@ -124,10 +126,90 @@ void readFile(const std::string &inputPath, Group *&head) {
             break; // Прекращаем чтение при пустых строках
         }
 
-        insertGroup(head, group, faculty, course);
+        insertFaculty(facultyHead, faculty);
+        insertCourse(courseHead, course);
+        insertGroup(groupHead, group);
+
+        Faculty *facultyNode = getCurrentFacultyNode(facultyHead, faculty);
+        groupHead->nextFaculty = facultyNode->groupHead;
+        facultyNode->groupHead = groupHead;
+
+        Course *courseNode = getCurrentCourseNode(courseHead, course);
+        groupHead->nextCourse = courseNode->groupHead;
+        courseNode->groupHead = groupHead;
     }
 
     inputFile.close();
+}
+
+void printAllGroups(Group *groupHead) {
+    Group *current = groupHead;
+    while (current != nullptr) {
+        std::cout << "Группа: " << current->value << std::endl;
+        current = current->next;
+    }
+}
+
+void printAllFaculties(Faculty *facultyHead) {
+    Faculty *current = facultyHead;
+    while (current != nullptr) {
+        std::cout << "Факультет: " << current->value << std::endl;
+        current = current->next;
+    }
+}
+
+void printAllCourses(Course *courseHead) {
+    Course *current = courseHead;
+    while (current != nullptr) {
+        std::cout << "Курс: " << current->value << std::endl;
+        current = current->next;
+    }
+}
+
+void printGroupsByFaculty(Faculty *facultyHead, const std::string &faculty) {
+    Faculty *currentFaculty = facultyHead;
+
+    while (currentFaculty != nullptr) {
+        if (currentFaculty->value == faculty) {
+            break;
+        }
+        currentFaculty = currentFaculty->next;
+    }
+
+    if (currentFaculty == nullptr) {
+        std::cout << "Данные по факультету \"" << faculty << "\" не найдены" << std::endl;
+        return;
+    }
+
+    std::cout << faculty << std::endl;
+    Group *currentGroup = currentFaculty->groupHead;
+    while (currentGroup != nullptr) {
+        std::cout << "Группа: " << currentGroup->value << std::endl;
+        currentGroup = currentGroup->nextFaculty;
+    }
+}
+
+void printGroupsByCourse(Course *courseHead, const std::string &course) {
+    Course *currentCourse = courseHead;
+
+    while (currentCourse != nullptr) {
+        if (currentCourse->value == course) {
+            break;
+        }
+        currentCourse = currentCourse->next;
+    }
+
+    if (currentCourse == nullptr) {
+        std::cout << "Данные по курсу \"" << course << "\" не найдены" << std::endl;
+        return;
+    }
+
+    std::cout << course << std::endl;
+    Group *currentGroup = currentCourse->groupHead;
+    while (currentGroup != nullptr) {
+        std::cout << "Группа: " << currentGroup->value << std::endl;
+        currentGroup = currentGroup->nextCourse;
+    }
 }
 
 int main(int argc, char *argv[]) {
@@ -141,6 +223,8 @@ int main(int argc, char *argv[]) {
     }
 
     Group *groupHead = nullptr;
+    Faculty *facultyHead = nullptr;
+    Course *courseHead = nullptr;
 
-    readFile(inputPath, groupHead);
+    readFile(inputPath, groupHead, facultyHead, courseHead);
 }
