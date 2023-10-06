@@ -4,12 +4,17 @@
 #include <windows.h>
 
 struct Group {
-    std::string value;
+    std::string group;
     std::string faculty;
     std::string course;
     Group *next;
     Group *nextFaculty;
     Group *nextCourse;
+
+    Group(const std::string &group, const std::string &faculty, const std::string &course, Group *next = nullptr,
+          Group *nextFaculty = nullptr, Group *nextCourse = nullptr) : group(group), faculty(faculty), course(course),
+                                                                       next(next), nextFaculty(nextFaculty),
+                                                                       nextCourse(nextCourse) {}
 };
 
 // Функция для удаления лидирующих и конечных символов
