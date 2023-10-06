@@ -73,24 +73,42 @@ std::string readWord(std::ifstream &inputFile) {
 }
 
 // Процедура для чтения данных из файла
-void readFile(std::ifstream &inputFile) {
+void readFile(const std::string &inputPath, Group *&head) {
+    std::ifstream inputFile(inputPath);
+    if (!inputFile.is_open()) {
+        throw std::runtime_error("Не удалось открыть файл \"" + inputPath + "\" для чтения");
+    }
 
+    std::string group;
+    std::string faculty;
+    std::string course;
+
+    while (true) {
+        group = readWord(inputFile);
+        faculty = readWord(inputFile);
+        course = readWord(inputFile);
+
+        if (group.empty() || faculty.empty() || course.empty()) {
+            break; // Прекращаем чтение при пустых строках
+        }
+
+        insertGroup(head, group, faculty, course);
+    }
+
+    inputFile.close();
 }
 
 int main(int argc, char *argv[]) {
     SetConsoleCP(1251);
     SetConsoleOutputCP(1251);
 
+    // Обработка аргументов командной строки
     std::string inputPath = "input.txt";
     if (argc == 3 && strcmp(argv[1], "-f") == 0) {
         inputPath = argv[2];
     }
 
-    std::ifstream inputFile(inputPath);
-    if (!inputFile.is_open()) {
-        std::cerr << "Не удалось открыть файл для чтения: " << inputPath << std::endl;
-        return 1;
-    }
+    Group *groupHead = nullptr;
 
-    readFile(inputFile);
+    readFile(inputPath, groupHead);
 }
