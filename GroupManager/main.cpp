@@ -287,7 +287,7 @@ int main(int argc, char *argv[]) {
                 printAllGroups(groupHead);
                 break;
             case 2: {
-                std::cout << "Выберете факультет" << std::endl;
+                std::cout << "Выберите факультет" << std::endl;
                 printAllFaculties(facultyHead);
                 std::string faculty = readString("Введите название факультета: ");
                 printGroupsByFaculty(facultyHead, faculty);
