@@ -39,6 +39,7 @@ struct Faculty {
     Group *groupHead{};
 };
 
+// Процедура для добавления нового факультета
 void insertFaculty(Faculty *&facultyHead, const std::string &faculty) {
     Faculty *current = facultyHead;
 
@@ -53,9 +54,10 @@ void insertFaculty(Faculty *&facultyHead, const std::string &faculty) {
     newFaculty->value = faculty;
     newFaculty->next = facultyHead;
     facultyHead = newFaculty;
-};
+}
 
-Faculty *getCurrentFacultyNode(Faculty *facultyHead, const std::string &faculty) {
+// Функция для получения нужного узла по значению
+Faculty *getCurrentFaculty(Faculty *facultyHead, const std::string &faculty) {
     Faculty *current = facultyHead;
     while (current != nullptr) {
         if (current->value == faculty) {
@@ -72,6 +74,7 @@ struct Course {
     Group *groupHead{};
 };
 
+// Процедура для добавления нового курса
 void insertCourse(Course *&courseHead, const std::string &course) {
     Course *current = courseHead;
 
@@ -86,9 +89,10 @@ void insertCourse(Course *&courseHead, const std::string &course) {
     newCourse->value = course;
     newCourse->next = courseHead;
     courseHead = newCourse;
-};
+}
 
-Course *getCurrentCourseNode(Course *courseHead, const std::string &course) {
+// Функция для получения нужного узла по значению
+Course *getCurrentCourse(Course *courseHead, const std::string &course) {
     Course *current = courseHead;
     while (current != nullptr) {
         if (current->value == course) {
@@ -99,6 +103,7 @@ Course *getCurrentCourseNode(Course *courseHead, const std::string &course) {
     return current;
 }
 
+// Процедура для добавления нового факультета
 void insertGroup(Group *&groupHead, const std::string &group) {
     auto *newGroup = new Group;
     newGroup->value = group;
@@ -130,11 +135,13 @@ void readFile(const std::string &inputPath, Group *&groupHead, Faculty *&faculty
         insertCourse(courseHead, course);
         insertGroup(groupHead, group);
 
-        Faculty *facultyNode = getCurrentFacultyNode(facultyHead, faculty);
+        // Связываю группы одного факультета
+        Faculty *facultyNode = getCurrentFaculty(facultyHead, faculty);
         groupHead->nextFaculty = facultyNode->groupHead;
         facultyNode->groupHead = groupHead;
 
-        Course *courseNode = getCurrentCourseNode(courseHead, course);
+        // Связываю группы одного курса
+        Course *courseNode = getCurrentCourse(courseHead, course);
         groupHead->nextCourse = courseNode->groupHead;
         courseNode->groupHead = groupHead;
     }
@@ -142,6 +149,7 @@ void readFile(const std::string &inputPath, Group *&groupHead, Faculty *&faculty
     inputFile.close();
 }
 
+// Процедуры вывода
 void printAllGroups(Group *groupHead) {
     Group *current = groupHead;
     while (current != nullptr) {
@@ -212,6 +220,47 @@ void printGroupsByCourse(Course *courseHead, const std::string &course) {
     }
 }
 
+void clear(Group *groupHead, Faculty *facultyHead, Course *courseHead) {
+    while (groupHead != nullptr) {
+        Group *temp = groupHead;
+        groupHead = groupHead->next;
+        delete temp;
+    }
+
+    while (facultyHead != nullptr) {
+        Faculty *temp = facultyHead;
+        facultyHead = facultyHead->next;
+        delete temp;
+    }
+
+    while (courseHead != nullptr) {
+        Course *temp = courseHead;
+        courseHead = courseHead->next;
+        delete temp;
+    }
+}
+
+int readNumber(const std::string &prompt) {
+    std::cout << prompt;
+    int number;
+    std::cin >> number;
+    while (std::cin.fail()) {
+        std::cin.clear();
+        std::cin.ignore(256, '\n');
+        std::cout << "Неверный ввод. Пожалуйста, введите целое число: ";
+        std::cin >> number;
+    }
+    return number;
+}
+
+std::string readString(const std::string &prompt) {
+    std::cout << prompt;
+    std::string str;
+    std::cin.ignore();
+    std::getline(std::cin, str);
+    return str;
+}
+
 int main(int argc, char *argv[]) {
     SetConsoleCP(1251);
     SetConsoleOutputCP(1251);
@@ -227,4 +276,37 @@ int main(int argc, char *argv[]) {
     Course *courseHead = nullptr;
 
     readFile(inputPath, groupHead, facultyHead, courseHead);
+
+    int command = -1;
+    while (command != 0) {
+        std::cout << "Что вывести?" << "\n1. Все группы\n2. Группы по факультету\n3. Группы по курсу\n0. Выход"
+                  << std::endl;
+        command = readNumber("Введите номер команды: ");
+        switch (command) {
+            case 1:
+                printAllGroups(groupHead);
+                break;
+            case 2: {
+                std::cout << "Выберете факультет" << std::endl;
+                printAllFaculties(facultyHead);
+                std::string faculty = readString("Введите название факультета: ");
+                printGroupsByFaculty(facultyHead, faculty);
+                break;
+            }
+            case 3: {
+                std::cout << "Выберете курс" << std::endl;
+                printAllCourses(courseHead);
+                std::string course = readString("Введите название курса: ");
+                printGroupsByCourse(courseHead, course);
+                break;
+            }
+            case 0:
+                break;
+            default:
+                std::cerr << "Неправильная команда" << std::endl;
+                break;
+        }
+    }
+
+    clear(groupHead, facultyHead, courseHead);
 }
