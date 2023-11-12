@@ -1,76 +1,15 @@
+/*
+Задано  сильно ветвящееся дерево. При  его  вводе  могли
+быть  сделаны ошибки.  Провести проверку на отсутствие циклов,
+то есть повторяющихся вершин.  При обнаружении цикла выдать на
+экран последовательность вершин, составляющих цикл (10).
+*/
 #include <fstream>
-#include <iostream>
-#include <stack>
 #include <string>
 #include <vector>
+#include <algorithm>
+#include <iostream>
 #include <windows.h>
-
-struct Tree {
-    std::string value;
-    int level{};
-    Tree *father{};
-    std::vector<Tree *> sons;
-};
-
-void readFromFile(const std::string &inputPath, Tree *&root) {
-    std::ifstream inputFile(inputPath);
-    if (!inputFile.is_open()) {
-        throw std::runtime_error("Не удалось открыть файл \"" + inputPath + "\" для чтения");
-    }
-
-    std::string line;
-    Tree *last = nullptr;
-    int lastLevel = 0;
-
-    while (not inputFile.eof()) {
-        std::getline(inputFile, line);
-        if (line.empty()) continue;
-        int level = 0;
-        size_t length = line.length();
-        while (line[level] == '.') level++;
-        auto *current = new Tree;
-        current->value = line.substr(level, length - level);
-        current->level = level;
-        if (level == 0) {
-            root = current;
-        } else if (last != nullptr && level == lastLevel) {
-            last->father->sons.push_back(current);
-            current->father = last->father;
-        } else if (last != nullptr && level > lastLevel) {
-            last->sons.push_back(current);
-            current->father = last;
-        } else if (last != nullptr) {
-            auto father = last;
-            for (int i = 0; i <= lastLevel - level; ++i) father = father->father;
-            father->sons.push_back(current);
-            current->father = father;
-        }
-        lastLevel = level;
-        last = current;
-    }
-
-    inputFile.close();
-}
-
-void writeToConsole(Tree *root) {
-    std::stack<Tree *> stack;
-    stack.push(root);
-
-    while (!stack.empty()) {
-        Tree *current = stack.top();
-        int level = current->level;
-        stack.pop();
-
-        for (int i = 0; i < level; ++i) {
-            std::cout << '.';
-        }
-        std::cout << current->value << std::endl;
-
-        for (auto it = current->sons.rbegin(); it != current->sons.rend(); ++it) {
-            stack.push(*it);
-        }
-    }
-}
 
 int main(int argc, char *argv[]) {
     SetConsoleCP(1251);
@@ -82,8 +21,42 @@ int main(int argc, char *argv[]) {
         inputPath = argv[2];
     }
 
-    Tree *root = nullptr;
+    std::ifstream inputFile(inputPath);
+    if (!inputFile.is_open()) {
+        throw std::runtime_error("Не удалось открыть файл \"" + inputPath + "\" для чтения");
+    }
 
-    readFromFile(inputPath, root);
-    writeToConsole(root);
+    std::vector<std::string> stack;
+    std::string line;
+    int lastLevel = 0;
+
+    while (std::getline(inputFile, line)) {
+        if (line.empty()) continue;
+        int level = 0;
+        while (line[level] == '.') level++;
+        size_t length = line.length();
+
+        std::string value = line.substr(level, length - level);
+
+        if (level == 0) {
+            stack.push_back(value);
+            continue;
+        }
+
+        if (level > lastLevel) {
+            stack.push_back(value);
+        } else {
+            for (int i = 0; i < lastLevel - level + 1; ++i) stack.pop_back();
+            stack.push_back(value);
+        }
+        lastLevel = level;
+
+        auto found = std::find(stack.begin(), stack.end(), value);
+        if (found != stack.end() - 1) {
+            for (; found != std::prev(stack.end()); ++found) {
+                std::cout << *found << " --> ";
+            }
+            std::cout << value << std::endl;
+        }
+    }
 }
