@@ -6,10 +6,10 @@
 #include <fstream>
 #include <string>
 #include <iostream>
-#include <windows.h>
 #include <vector>
 #include <algorithm>
 #include <unordered_map>
+#include <cstring>
 
 void printCycle(const std::vector<int> &cycle, std::unordered_map<std::string, int> vertexes) {
     for (int v: cycle) {
@@ -98,12 +98,9 @@ void readFromFile(std::ifstream &inputFile, std::vector<std::vector<int>> &graph
 }
 
 int main(int argc, char *argv[]) {
-    SetConsoleCP(1251);
-    SetConsoleOutputCP(1251);
-
     // Обработка аргументов командной строки
     std::string inputPath = "input.txt";
-    if (argc == 3 && strcmp(argv[1], "-f") == 0) {
+    if (argc == 3 && std::strcmp(argv[1], "-f") == 0) {
         inputPath = argv[2];
     }
 
