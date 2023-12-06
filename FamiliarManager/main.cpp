@@ -14,30 +14,30 @@ void readFromFile(std::ifstream &inputFile, std::vector<std::vector<int>> &graph
                   std::unordered_map<std::string, int> &vertexes) {
     std::string from;
     std::string to;
-    int indexFrom = 0;
-    int indexTo = 1;
+    int fromIndex = 0;
+    int toIndex = 1;
 
     while (inputFile >> from >> to) {
         if (vertexes.find(from) != vertexes.end()) {
-            indexTo = indexFrom;
-            indexFrom = vertexes[from];
+            toIndex = fromIndex;
+            fromIndex = vertexes[from];
         } else {
-            vertexes[from] = indexFrom;
+            vertexes[from] = fromIndex;
             graph.emplace_back();
         }
 
         if (vertexes.find(to) != vertexes.end()) {
-            indexTo = vertexes[to];
+            toIndex = vertexes[to];
         } else {
-            vertexes[to] = indexTo;
+            vertexes[to] = toIndex;
             graph.emplace_back();
         }
 
-        graph[indexFrom].push_back(indexTo);
-        graph[indexTo].push_back(indexFrom);
+        graph[fromIndex].push_back(toIndex);
+        graph[toIndex].push_back(fromIndex);
 
-        indexFrom = (int) vertexes.size();
-        indexTo = indexFrom + 1;
+        fromIndex = (int) vertexes.size();
+        toIndex = fromIndex + 1;
     }
 }
 
@@ -57,6 +57,26 @@ int main(int argc, char *argv[]) {
     std::vector<std::vector<int>> graph;
 
     readFromFile(inputFile, graph, vertexes);
+
+    std::cout << "Студенты" << std::endl;
+    for (const auto& vertex: vertexes) {
+        std::cout << vertex.first << std::endl;
+    }
+
+    std::string first;
+    std::string second;
+
+    std::cout << std::endl << "Введите первого студента: ";
+    std::cin >> first;
+
+    int firstIndex = vertexes.at(first);
+
+    std::cout << "Введите второго студента: ";
+    std::cin >> second;
+
+    int secondIndex = vertexes.at(second);
+
+    std::cout << firstIndex << secondIndex << std::endl;
 
     return 0;
 }
