@@ -41,6 +41,39 @@ void readFromFile(std::ifstream &inputFile, std::vector<std::vector<int>> &graph
     }
 }
 
+void fillTable(std::vector<std::vector<int>> &table, std::vector<std::vector<int>> graph) {
+    for (int i = 0; i < graph.size(); ++i) {
+        for (int j: graph[i]) {
+            table[i][j] = 1;
+            table[j][i] = 1;
+        }
+    }
+}
+
+int find(const std::vector<std::vector<int>> &table, int firstIndex, int secondIndex) {
+    int week = 0;
+    auto temp = table;
+    while (temp[firstIndex][secondIndex] != 1) {
+        std::vector<std::vector<int>> friends;
+        for (int i = 0; i < temp.size(); ++i) {
+            friends.emplace_back();
+            for (int j = 0; j < temp.size(); ++j) {
+                if (temp[i][j] == 1) friends[i].push_back(j);
+            }
+        }
+        for (auto & i : friends) {
+            for (int j = 0; j < i.size(); ++j) {
+                for (int k = 0; k < i.size(); ++k) {
+                    temp[i[k]][i[j]] = 1;
+                    temp[i[j]][i[k]] = 1;
+                }
+            }
+        }
+        week++;
+    }
+    return week;
+}
+
 int main(int argc, char *argv[]) {
     // Обработка аргументов командной строки
     std::string inputPath = "input.txt";
@@ -58,8 +91,12 @@ int main(int argc, char *argv[]) {
 
     readFromFile(inputFile, graph, vertexes);
 
+    std::vector<std::vector<int>> table(graph.size(), std::vector<int>(graph.size(), 0));
+
+    fillTable(table, graph);
+
     std::cout << "Студенты" << std::endl;
-    for (const auto& vertex: vertexes) {
+    for (const auto &vertex: vertexes) {
         std::cout << vertex.first << std::endl;
     }
 
@@ -74,9 +111,10 @@ int main(int argc, char *argv[]) {
     std::cout << "Введите второго студента: ";
     std::cin >> second;
 
+
     int secondIndex = vertexes.at(second);
 
-    std::cout << firstIndex << secondIndex << std::endl;
+    std::cout << find(table, firstIndex, secondIndex) << std::endl;
 
     return 0;
 }
