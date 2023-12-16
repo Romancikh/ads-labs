@@ -61,7 +61,7 @@ int find(const std::vector<std::vector<int>> &table, int firstIndex, int secondI
                 if (temp[i][j] == 1) friends[i].push_back(j);
             }
         }
-        for (auto & i : friends) {
+        for (auto &i: friends) {
             for (int j = 0; j < i.size(); ++j) {
                 for (int k = 0; k < i.size(); ++k) {
                     temp[i[k]][i[j]] = 1;
@@ -103,18 +103,19 @@ int main(int argc, char *argv[]) {
     std::string first;
     std::string second;
 
-    std::cout << std::endl << "Введите первого студента: ";
-    std::cin >> first;
+    while (true) {
+        std::cout << std::endl << "Введите первого студента: ";
+        std::cin >> first;
 
-    int firstIndex = vertexes.at(first);
+        if (vertexes.find(first) == vertexes.end()) return 0;
+        int firstIndex = vertexes.at(first);
 
-    std::cout << "Введите второго студента: ";
-    std::cin >> second;
+        std::cout << "Введите второго студента: ";
+        std::cin >> second;
 
+        if (vertexes.find(first) == vertexes.end()) return 0;
+        int secondIndex = vertexes.at(second);
 
-    int secondIndex = vertexes.at(second);
-
-    std::cout << find(table, firstIndex, secondIndex) << std::endl;
-
-    return 0;
+        std::cout << find(table, firstIndex, secondIndex) << std::endl;
+    }
 }
