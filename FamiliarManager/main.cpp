@@ -11,8 +11,9 @@
 #include <unordered_map>
 #include <limits>
 #include <queue>
+#include <cmath>
 
-const int INF = std::numeric_limits<int>::infinity();
+const int INF = std::numeric_limits<int>::max();
 
 std::vector<int> bfs(std::vector<std::vector<int>> &graph, int start) {
     std::vector<int> distance(graph.size(), INF);
@@ -57,14 +58,11 @@ void readFromFile(std::ifstream &inputFile, std::vector<std::vector<int>> &graph
     }
 }
 
-int week(std::vector<int> distance, int finish) {
+std::string week(std::vector<int> distance, int finish) {
     int distance1 = distance[finish];
-    int week = 0;
-    while (distance1 != 1) {
-        distance1 = distance1 / 2;
-        week++;
-    };
-    return week;
+    if (distance1 <= 1) return "Уже знакомы";
+    if (distance1 == INF) return "Не могут познакомится";
+    return "Познакомятся через " + std::to_string((int) ceil(log2(distance1))) + " недель";
 }
 
 int main(int argc, char *argv[]) {
@@ -103,7 +101,6 @@ int main(int argc, char *argv[]) {
 
         if (vertexes.find(first) == vertexes.end()) return 0;
         int secondIndex = vertexes.at(second);
-
 
         std::cout << week(bfs(graph, firstIndex), secondIndex) << std::endl;
     }
